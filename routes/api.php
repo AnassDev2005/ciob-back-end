@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\api\CategoryController;
+use App\Http\Controllers\api\ProductController;
+use App\Http\Controllers\api\RecipeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -37,5 +37,3 @@ Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
     Route::apiResource('recipes', RecipeController::class)
         ->only(['store', 'update', 'destroy']);
 });
-
-
