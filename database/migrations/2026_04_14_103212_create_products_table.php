@@ -13,7 +13,20 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('description');
+
+            $table->json('features')->nullable();
+            $table->json('specifications')->nullable();
+            $table->json('images')->nullable();
+            $table->text('usage')->nullable();
+
+            $table->string('badge')->nullable();
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+
             $table->timestamps();
+            $table->softDeletes(); // Add this
         });
     }
 
