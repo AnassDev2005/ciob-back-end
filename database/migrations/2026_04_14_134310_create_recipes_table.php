@@ -13,12 +13,10 @@ return new class extends Migration
     {
         Schema::create('recipes', function (Blueprint $table) {
             $table->id();
-
             $table->string('title');
             $table->text('description');
             $table->json('steps');
             $table->string('image')->nullable();
-
             $table->foreignId('product_id')
                 ->nullable()
                 ->constrained()
