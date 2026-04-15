@@ -22,11 +22,16 @@ class UserController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $user = User::findOrFail($id);
-        $user->update($request->validate([
+        $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|max:255|unique:users,email,'.$id,
-            'is_admin' => 'sometimes|boolean',
-        ]));
+        ]);
+
+        if (empty($validated)) {
+            return response()->json(['message' => 'No valid fields to update'], 422);
+        }
+
+        $user->update($validated);
 
         return response()->json($user);
     }
