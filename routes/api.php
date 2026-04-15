@@ -23,6 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    Route::post('/upload', 'App\Http\Controllers\api\UploadController@upload');
+    Route::post('/upload-multiple', 'App\Http\Controllers\api\UploadController@uploadMultiple');
+
     Route::middleware('is_admin')->group(function () {
         Route::apiResource('users', UserController::class);
     });
