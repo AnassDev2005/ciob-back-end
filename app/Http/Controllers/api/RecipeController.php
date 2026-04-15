@@ -4,63 +4,59 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Recipe;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        return response()->json(Recipe::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request): JsonResponse
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'steps' => 'required|array',
+            'image' => 'nullable|string',
+            'product_id' => 'nullable|integer|exists:products,id',
+            'preparation_time' => 'nullable|integer',
+            'cooking_time' => 'nullable|integer',
+        ]);
+
+        $recipe = Recipe::create($validated);
+
+        return response()->json($recipe, 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(Recipe $recipe): JsonResponse
     {
-        //
+        return response()->json($recipe);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Recipe $recipe)
+    public function update(Request $request, Recipe $recipe): JsonResponse
     {
-        //
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'steps' => 'sometimes|array',
+            'image' => 'nullable|string',
+            'product_id' => 'nullable|integer|exists:products,id',
+            'preparation_time' => 'nullable|integer',
+            'cooking_time' => 'nullable|integer',
+        ]);
+
+        $recipe->update($validated);
+
+        return response()->json($recipe);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Recipe $recipe)
+    public function destroy(Recipe $recipe): JsonResponse
     {
-        //
-    }
+        $recipe->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Recipe $recipe)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Recipe $recipe)
-    {
-        //
+        return response()->json(['message' => 'Recipe deleted']);
     }
 }
