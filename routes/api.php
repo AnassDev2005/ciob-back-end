@@ -32,7 +32,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 });
 // public Product routes
 Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::get('/products/{product}', [ProductController::class, 'show']);
 
 // Admin routes for managing products
 Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
