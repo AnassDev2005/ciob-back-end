@@ -4,6 +4,7 @@ use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\ProductController;
 use App\Http\Controllers\api\RecipeController;
+use App\Http\Controllers\api\UploadController;
 use App\Http\Controllers\api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,8 +24,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::post('/upload', 'App\Http\Controllers\api\UploadController@upload');
-    Route::post('/upload-multiple', 'App\Http\Controllers\api\UploadController@uploadMultiple');
+    Route::post('/upload', [UploadController::class, 'upload']);
+    Route::post('/upload-multiple', [UploadController::class, 'uploadMultiple']);
 
     Route::middleware('is_admin')->group(function () {
         Route::apiResource('users', UserController::class);

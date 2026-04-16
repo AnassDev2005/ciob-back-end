@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
+    private function generateFilename(string $extension): string
+    {
+        return bin2hex(random_bytes(16)).'.'.$extension;
+    }
+
     public function upload(Request $request): JsonResponse
     {
         $request->validate([
@@ -16,7 +21,7 @@ class UploadController extends Controller
         ]);
 
         $file = $request->file('image');
-        $filename = bin2hex(random_bytes(16)).'.'.$file->getClientOriginalExtension();
+        $filename = $this->generateFilename($file->getClientOriginalExtension());
         $path = $file->storeAs('images', $filename, 'public');
 
         return response()->json([
@@ -32,15 +37,15 @@ class UploadController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $urls = [];
-        foreach ($request->file('images') as $image) {
-            $filename = bin2hex(random_bytes(16)).'.'.$image->getClientOriginalExtension();
+        $urls = collect($request->file('images'))->map(function ($image) {
+            $filename = $this->generateFilename($image->getClientOriginalExtension());
             $path = $image->storeAs('images', $filename, 'public');
-            $urls[] = [
+
+            return [
                 'url' => asset(Storage::url($path)),
                 'path' => $path,
             ];
-        }
+        });
 
         return response()->json([
             'urls' => $urls,
