@@ -4,12 +4,14 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Recipe;
+use App\Traits\HandlesImageUpload;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class RecipeController extends Controller
 {
+    use HandlesImageUpload;
+
     public function index(): JsonResponse
     {
         return response()->json(Recipe::with('product')->get());
@@ -28,9 +30,7 @@ class RecipeController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $filename = bin2hex(random_bytes(16)).'.'.$request->file('image')->getClientOriginalExtension();
-            $path = $request->file('image')->storeAs('images', $filename, 'public');
-            $validated['image'] = asset(Storage::url($path));
+            $validated['image'] = $this->storeImage($request);
         }
 
         $recipe = Recipe::create($validated);
@@ -56,9 +56,7 @@ class RecipeController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $filename = bin2hex(random_bytes(16)).'.'.$request->file('image')->getClientOriginalExtension();
-            $path = $request->file('image')->storeAs('images', $filename, 'public');
-            $validated['image'] = asset(Storage::url($path));
+            $validated['image'] = $this->storeImage($request);
         }
 
         $recipe->update($validated);

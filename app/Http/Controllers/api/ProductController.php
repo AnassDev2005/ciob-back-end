@@ -4,12 +4,14 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Traits\HandlesImageUpload;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    use HandlesImageUpload;
+
     public function index(): JsonResponse
     {
         return response()->json(Product::with('category')->get());
@@ -30,9 +32,7 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $filename = bin2hex(random_bytes(16)).'.'.$request->file('image')->getClientOriginalExtension();
-            $path = $request->file('image')->storeAs('images', $filename, 'public');
-            $validated['image'] = asset(Storage::url($path));
+            $validated['image'] = $this->storeImage($request);
         }
 
         $product = Product::create($validated);
@@ -60,9 +60,7 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $filename = bin2hex(random_bytes(16)).'.'.$request->file('image')->getClientOriginalExtension();
-            $path = $request->file('image')->storeAs('images', $filename, 'public');
-            $validated['image'] = asset(Storage::url($path));
+            $validated['image'] = $this->storeImage($request);
         }
 
         $product->update($validated);
