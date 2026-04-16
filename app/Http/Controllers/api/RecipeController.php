@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Recipe;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class RecipeController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(Recipe::all());
+        return response()->json(Recipe::with('product')->get());
     }
 
     public function store(Request $request): JsonResponse
@@ -20,15 +21,21 @@ class RecipeController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'steps' => 'required|array',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'product_id' => 'nullable|integer|exists:products,id',
             'preparation_time' => 'nullable|integer',
             'cooking_time' => 'nullable|integer',
         ]);
 
+        if ($request->hasFile('image')) {
+            $filename = bin2hex(random_bytes(16)).'.'.$request->file('image')->getClientOriginalExtension();
+            $path = $request->file('image')->storeAs('images', $filename, 'public');
+            $validated['image'] = asset(Storage::url($path));
+        }
+
         $recipe = Recipe::create($validated);
 
-        return response()->json($recipe, 201);
+        return response()->json($recipe->load('product'), 201);
     }
 
     public function show(Recipe $recipe): JsonResponse
@@ -42,15 +49,21 @@ class RecipeController extends Controller
             'title' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
             'steps' => 'sometimes|array',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'product_id' => 'nullable|integer|exists:products,id',
             'preparation_time' => 'nullable|integer',
             'cooking_time' => 'nullable|integer',
         ]);
 
+        if ($request->hasFile('image')) {
+            $filename = bin2hex(random_bytes(16)).'.'.$request->file('image')->getClientOriginalExtension();
+            $path = $request->file('image')->storeAs('images', $filename, 'public');
+            $validated['image'] = asset(Storage::url($path));
+        }
+
         $recipe->update($validated);
 
-        return response()->json($recipe);
+        return response()->json($recipe->load('product'));
     }
 
     public function destroy(Recipe $recipe): JsonResponse
