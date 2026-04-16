@@ -12,15 +12,6 @@ class Product extends Model
 
     protected $guarded = [];
 
-    protected static function booted(): void
-    {
-        static::creating(function (Product $product) {
-            if (empty($product->slug)) {
-                $product->slug = Str::slug($product->name);
-            }
-        });
-    }
-
     protected function casts(): array
     {
         return [
@@ -28,5 +19,24 @@ class Product extends Model
             'specifications' => 'array',
             'images' => 'array',
         ];
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function recipes()
+    {
+        return $this->hasMany(Recipe::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Product $product) {
+            if (empty($product->slug)) {
+                $product->slug = Str::slug($product->name);
+            }
+        });
     }
 }
