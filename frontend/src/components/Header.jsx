@@ -99,17 +99,17 @@ export default function Header() {
                   Voir toutes les recettes
                 </Link>
                 <div className="max-h-64 overflow-y-auto">
-                  {recipes.length > 0 ? recipes.map((recipe) => (
+                  {categories.length > 0 ? categories.map((category) => (
                     <Link
-                      key={recipe.id}
-                      to="/recipes"
+                      key={category.id}
+                      to={`/recipes?category=${category.id}`}
                       className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-rose-600 transition-colors"
                       onClick={() => setIsRecipesOpen(false)}
                     >
-                      {recipe.title || recipe.name}
+                      {category.name}
                     </Link>
                   )) : (
-                    <p className="px-4 py-2 text-xs text-gray-400">Aucune recette</p>
+                    <p className="px-4 py-2 text-xs text-gray-400">Aucune catégorie</p>
                   )}
                 </div>
               </div>

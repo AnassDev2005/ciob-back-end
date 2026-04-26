@@ -1,15 +1,27 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import { fetchRecipes } from '../store/slices/recipeSlice';
 import { BookOpen, Clock, Utensils, Info } from 'lucide-react';
 
 const Recipes = () => {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const categoryId = searchParams.get('category');
   const { recipes, loading, error } = useSelector((state) => state.recipes);
+  const { categories } = useSelector((state) => state.products);
 
   useEffect(() => {
     dispatch(fetchRecipes());
   }, [dispatch]);
+
+  const filteredRecipes = categoryId 
+    ? recipes.filter(r => r.product?.category_id === parseInt(categoryId))
+    : recipes;
+
+  const currentCategory = categoryId 
+    ? categories.find(c => c.id === parseInt(categoryId))
+    : null;
 
   if (loading) {
     return (
@@ -30,12 +42,16 @@ const Recipes = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <header className="mb-10 text-center">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Nos Recettes</h1>
-        <p className="text-lg text-gray-600">Inspirez-vous avec nos délicieuses recettes traditionnelles</p>
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">
+          {currentCategory ? `Recettes : ${currentCategory.name}` : 'Nos Recettes'}
+        </h1>
+        <p className="text-lg text-gray-600">
+          {currentCategory ? `Découvrez nos recettes utilisant nos produits ${currentCategory.name}` : 'Inspirez-vous avec nos délicieuses recettes traditionnelles'}
+        </p>
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {recipes.map((recipe) => (
+        {filteredRecipes.map((recipe) => (
           <div key={recipe.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group">
             <div className="aspect-video bg-gray-100 relative overflow-hidden">
               {recipe.image ? (
@@ -82,10 +98,10 @@ const Recipes = () => {
         ))}
       </div>
       
-      {recipes.length === 0 && (
+      {filteredRecipes.length === 0 && (
         <div className="text-center py-20 text-gray-500">
           <Utensils className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-          <p className="text-xl">Aucune recette trouvée</p>
+          <p className="text-xl">Aucune recette trouvée pour cette catégorie</p>
         </div>
       )}
     </div>
