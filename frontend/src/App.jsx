@@ -1,18 +1,35 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import { useDispatch } from 'react-redux';
+import { fetchProducts, fetchCategories } from './store/slices/productSlice';
+import { fetchRecipes } from './store/slices/recipeSlice';
+import Header from './components/Header';
+import Footer from './components/Footer';
 import Home from './pages/Home';
+import Products from './pages/Products';
+import Recipes from './pages/Recipes';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+    dispatch(fetchCategories());
+    dispatch(fetchRecipes());
+  }, [dispatch]);
+
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/recipes" element={<Recipes />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
@@ -30,6 +47,7 @@ function App() {
             />
           </Routes>
         </main>
+        <Footer />
       </div>
     </Router>
   );
