@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUsers } from '../../store/slices/adminSlice';
 import api from '../../api/axios';
-import { 
-  Users, 
-  Search, 
-  Trash2, 
-  Shield, 
+import {
+  Users,
+  Search,
+  Trash2,
+  Shield,
   User as UserIcon,
   CheckCircle2,
   XCircle
@@ -21,7 +21,7 @@ const UserManagement = () => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  const filteredUsers = users.filter(u => 
+  const filteredUsers = users.filter(u =>
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -56,9 +56,9 @@ const UserManagement = () => {
       <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-50">
           <div className="relative max-w-md">
-            <input 
-              type="text" 
-              placeholder="Rechercher un utilisateur..." 
+            <input
+              type="text"
+              placeholder="Rechercher un utilisateur..."
               className="w-full bg-gray-50 border-none rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -68,69 +68,79 @@ const UserManagement = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-gray-50/50">
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Utilisateur</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Rôle</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Date d'inscription</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
-                        <UserIcon size={20} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-gray-900 text-sm">{user.name}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    {user.is_admin ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-indigo-600 text-white shadow-lg shadow-indigo-200">
-                        <Shield size={10} />
-                        Administrateur
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-gray-100 text-gray-500">
-                        Client
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => toggleAdmin(user)}
-                        className={`p-2 rounded-lg transition-all ${
-                          user.is_admin 
-                            ? 'text-amber-600 hover:bg-amber-50' 
-                            : 'text-indigo-600 hover:bg-indigo-50'
-                        }`}
-                        title={user.is_admin ? "Retirer les droits admin" : "Promouvoir admin"}
-                      >
-                        <Shield size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(user.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
+          {loading && users.length === 0 ? (
+            <div className="p-16 text-center text-gray-400 animate-pulse font-medium">Chargement des utilisateurs...</div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="p-16 text-center">
+              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                <Users size={28} />
+              </div>
+              <p className="text-gray-500 font-medium">Aucun utilisateur trouvé.</p>
+            </div>
+          ) : (
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-gray-50/50">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Utilisateur</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Rôle</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Date d'inscription</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filteredUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                          <UserIcon size={20} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900 text-sm">{user.name}</p>
+                          <p className="text-xs text-gray-500">{user.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {user.is_admin ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-indigo-600 text-white shadow-lg shadow-indigo-200">
+                          <Shield size={10} />
+                          Administrateur
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-gray-100 text-gray-500">
+                          Client
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => toggleAdmin(user)}
+                          className={`p-2 rounded-lg transition-all ${user.is_admin
+                              ? 'text-amber-600 hover:bg-amber-50'
+                              : 'text-indigo-600 hover:bg-indigo-50'
+                            }`}
+                          title={user.is_admin ? "Retirer les droits admin" : "Promouvoir admin"}
+                        >
+                          <Shield size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

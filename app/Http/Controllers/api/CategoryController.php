@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -18,9 +19,14 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:categories',
+            'type' => 'required|string|in:product,recipe',
+            'slug' => 'nullable|string|max:255|unique:categories',
             'description' => 'nullable|string',
         ]);
+
+        if (empty($validated['slug'])) {
+            $validated['slug'] = Str::slug($validated['name']);
+        }
 
         $category = Category::create($validated);
 
@@ -36,9 +42,14 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'slug' => 'sometimes|string|max:255|unique:categories,slug,'.$category->id,
+            'type' => 'sometimes|string|in:product,recipe',
+            'slug' => 'sometimes|string|max:255|unique:categories,slug,' . $category->id,
             'description' => 'nullable|string',
         ]);
+
+        if (isset($validated['name']) && !isset($validated['slug'])) {
+            $validated['slug'] = Str::slug($validated['name']);
+        }
 
         $category->update($validated);
 

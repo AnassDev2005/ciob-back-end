@@ -32,19 +32,19 @@ const Products = () => {
   };
 
   const filteredProducts = products.filter(product => {
-    const matchesCategory = categoryId 
+    const matchesCategory = categoryId
       ? (product.category_id === parseInt(categoryId) || product.category?.id === parseInt(categoryId))
       : true;
-    
+
     const matchesSearch = searchQuery
-      ? (product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-         product.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      ? (product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase()))
       : true;
 
     return matchesCategory && matchesSearch;
   });
 
-  const currentCategory = categoryId 
+  const currentCategory = categoryId
     ? categories.find(c => c.id === parseInt(categoryId))
     : null;
 
@@ -80,8 +80,8 @@ const Products = () => {
             {currentCategory ? currentCategory.name : 'Nos Collections'}
           </h1>
           <p className="max-w-2xl mx-auto text-lg text-indigo-100/80 mb-0">
-            {currentCategory 
-              ? currentCategory.description 
+            {currentCategory
+              ? currentCategory.description
               : 'Découvrez notre gamme complète d\'ustensiles de cuisine haute performance pour les professionnels et les passionnés.'}
           </p>
         </div>
@@ -100,27 +100,25 @@ const Products = () => {
                 {filteredProducts.length} PRODUITS TROUVÉS
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleCategoryChange(null)}
-                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${
-                  !categoryId 
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 -translate-y-0.5' 
+                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${!categoryId
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 -translate-y-0.5'
                     : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30'
-                }`}
+                  }`}
               >
                 Tous les produits
               </button>
-              {categories.map((category) => (
+              {categories.filter(c => c.type === 'product').map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${
-                    categoryId === category.id.toString()
+                  className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${categoryId === category.id.toString()
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 -translate-y-0.5'
                       : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30'
-                  }`}
+                    }`}
                 >
                   {category.name}
                 </button>
@@ -164,7 +162,7 @@ const Products = () => {
                   </span>
                 )}
               </div>
-              
+
               <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 mb-3 uppercase tracking-widest">
                   <Tag size={12} />
@@ -174,9 +172,9 @@ const Products = () => {
                 <p className="text-gray-500 text-sm line-clamp-2 mb-6 leading-relaxed">
                   {product.description}
                 </p>
-                
+
                 <div className="mt-auto flex items-center justify-between pt-5 border-t border-gray-50">
-                  <Link 
+                  <Link
                     to={`/products/${product.id}`}
                     className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-gray-50 text-gray-900 text-sm font-bold hover:bg-indigo-600 hover:text-white transition-all transform active:scale-95 group/btn"
                   >
@@ -188,7 +186,7 @@ const Products = () => {
             </div>
           ))}
         </div>
-        
+
         {filteredProducts.length === 0 && (
           <div className="text-center py-32 bg-gray-50 rounded-[40px] border-4 border-dashed border-gray-100">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white shadow-xl text-gray-300 mb-6">
@@ -196,7 +194,7 @@ const Products = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Aucun produit trouvé</h2>
             <p className="text-gray-500 mb-8 max-w-sm mx-auto">Nous n'avons trouvé aucun résultat correspondant à vos critères de recherche.</p>
-            <button 
+            <button
               onClick={() => {
                 setSearchParams({});
               }}

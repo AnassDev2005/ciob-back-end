@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById, clearCurrentProduct } from '../store/slices/productSlice';
@@ -8,11 +8,16 @@ const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { currentProduct: product, loading, error } = useSelector((state) => state.products);
+  const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
     dispatch(fetchProductById(id));
     return () => dispatch(clearCurrentProduct());
   }, [dispatch, id]);
+
+  const productImages = product?.images && product.images.length > 0
+    ? product.images
+    : (product?.image ? [product.image] : []);
 
   if (loading) {
     return (
@@ -44,25 +49,45 @@ const ProductDetail = () => {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          {/* Product Image */}
-          <div className="relative">
-            <div className="aspect-square bg-gray-50 rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-2xl shadow-gray-200/50">
-              {product.image ? (
+          {/* Product Gallery */}
+          <div className="flex flex-col gap-6">
+            <div className="relative group aspect-square bg-gray-50 rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-2xl shadow-gray-200/50">
+              {productImages.length > 0 ? (
                 <img
-                  src={product.image}
+                  src={productImages[activeImage]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-all duration-500 ease-in-out transform"
+                  key={activeImage}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-300">
                   <Package size={120} />
                 </div>
               )}
+
+              {product.badge && (
+                <span className="absolute top-8 left-8 bg-indigo-600 text-white text-[10px] font-black px-4 py-2 rounded-xl shadow-xl uppercase tracking-widest z-10">
+                  {product.badge}
+                </span>
+              )}
             </div>
-            {product.badge && (
-              <span className="absolute top-8 left-8 bg-indigo-600 text-white text-xs font-black px-4 py-2 rounded-xl shadow-xl uppercase tracking-widest">
-                {product.badge}
-              </span>
+
+            {/* Thumbnails */}
+            {productImages.length > 1 && (
+              <div className="flex flex-wrap gap-4 px-2">
+                {productImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImage(idx)}
+                    className={`relative w-20 h-20 rounded-2xl overflow-hidden border-4 transition-all ${activeImage === idx
+                        ? 'border-indigo-600 scale-105 shadow-lg shadow-indigo-100'
+                        : 'border-transparent hover:border-gray-200 grayscale hover:grayscale-0'
+                      }`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
@@ -72,11 +97,11 @@ const ProductDetail = () => {
               <Tag size={14} />
               {product.category?.name || 'Général'}
             </div>
-            
+
             <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
               {product.name}
             </h1>
-            
+
             <p className="text-lg text-gray-600 leading-relaxed mb-10">
               {product.description}
             </p>
@@ -104,8 +129,8 @@ const ProductDetail = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link 
-                to="/contact" 
+              <Link
+                to="/contact"
                 className="flex-grow inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-indigo-600 text-white font-bold shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-95"
               >
                 Demander un devis

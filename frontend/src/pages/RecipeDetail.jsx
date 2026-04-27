@@ -1,18 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRecipeById, clearCurrentRecipe } from '../store/slices/recipeSlice';
-import { Clock, Utensils, ArrowLeft, BookOpen, ChefHat, CheckCircle2 } from 'lucide-react';
+import { Clock, Utensils, ArrowLeft, BookOpen, ChefHat, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const RecipeDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { currentRecipe: recipe, loading, error } = useSelector((state) => state.recipes);
+  const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
     dispatch(fetchRecipeById(id));
     return () => dispatch(clearCurrentRecipe());
   }, [dispatch, id]);
+
+  const nextImage = () => {
+    if (!recipeImages.length) return;
+    setActiveImage((prev) => (prev + 1) % recipeImages.length);
+  };
+
+  const prevImage = () => {
+    if (!recipeImages.length) return;
+    setActiveImage((prev) => (prev - 1 + recipeImages.length) % recipeImages.length);
+  };
+
+  const recipeImages = recipe?.images && Array.isArray(recipe.images) && recipe.images.length > 0
+    ? recipe.images
+    : (recipe?.image ? [recipe.image] : []);
 
   if (loading) {
     return (
@@ -38,18 +53,40 @@ const RecipeDetail = () => {
   return (
     <div className="bg-white">
       {/* Recipe Hero */}
-      <section className="relative h-[50vh] min-h-[400px] overflow-hidden">
-        {recipe.image ? (
-          <img
-            src={recipe.image}
-            alt={recipe.title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-rose-50 flex items-center justify-center text-rose-200">
-            <Utensils size={120} />
+      <section className="relative h-[60vh] min-h-[500px] overflow-hidden bg-gray-900">
+        <div className="absolute inset-0 w-full h-full">
+          {recipeImages.length > 0 ? (
+            <img
+              src={recipeImages[activeImage]}
+              alt={recipe.title}
+              className="w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
+              key={activeImage}
+            />
+          ) : (
+            <div className="w-full h-full bg-rose-50 flex items-center justify-center text-rose-200">
+              <Utensils size={120} />
+            </div>
+          )}
+        </div>
+
+        {/* Navigation Arrows */}
+        {recipeImages.length > 1 && (
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 sm:px-8 z-10">
+            <button
+              onClick={prevImage}
+              className="p-3 rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-all transform active:scale-90"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={nextImage}
+              className="p-3 rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-all transform active:scale-90"
+            >
+              <ChevronRight size={24} />
+            </button>
           </div>
         )}
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
         <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-12">
           <div className="max-w-7xl mx-auto">
@@ -68,9 +105,27 @@ const RecipeDetail = () => {
                 </span>
               )}
             </div>
-            <h1 className="text-4xl sm:text-6xl font-black text-white leading-tight">
+            <h1 className="text-4xl sm:text-6xl font-black text-white leading-tight mb-8">
               {recipe.title}
             </h1>
+
+            {/* Gallery Thumbnails */}
+            {recipeImages.length > 1 && (
+              <div className="flex gap-3 mt-4">
+                {recipeImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImage(idx)}
+                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${activeImage === idx
+                      ? 'border-white scale-110 shadow-lg'
+                      : 'border-white/20 hover:border-white/50 opacity-60 hover:opacity-100'
+                      }`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -129,7 +184,7 @@ const RecipeDetail = () => {
                       Utilisez cet ustensile TITANIC pour une cuisson parfaite et homogène.
                     </p>
                   </div>
-                  <Link 
+                  <Link
                     to={`/products/${recipe.product.id}`}
                     className="w-full inline-flex items-center justify-center py-4 bg-white text-gray-900 font-bold rounded-2xl hover:bg-rose-500 hover:text-white transition-all transform active:scale-95"
                   >

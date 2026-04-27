@@ -42,7 +42,7 @@ export default function Header() {
       // Default to products for search
       navigate(`/products?${params.toString()}`);
     }
-    
+
     setIsMenuOpen(false);
   };
 
@@ -86,9 +86,9 @@ export default function Header() {
               Nos produits
               <ChevronDown size={14} className={`transition-transform duration-200 ${isProductsOpen ? 'rotate-180' : ''}`} />
             </button>
-            
+
             {isProductsOpen && (
-              <div 
+              <div
                 className="absolute top-full left-0 w-64 bg-white border border-gray-100 shadow-xl rounded-lg py-3 mt-1 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
                 onMouseLeave={() => setIsProductsOpen(false)}
               >
@@ -100,7 +100,7 @@ export default function Header() {
                   Découvrir tous nos produits
                 </Link>
                 <div className="max-h-64 overflow-y-auto">
-                  {categories.length > 0 ? categories.map((category) => (
+                  {categories.filter(c => c.type === 'product').length > 0 ? categories.filter(c => c.type === 'product').map((category) => (
                     <Link
                       key={category.id}
                       to={`/products?category=${category.id}`}
@@ -126,9 +126,9 @@ export default function Header() {
               Recettes
               <ChevronDown size={14} className={`transition-transform duration-200 ${isRecipesOpen ? 'rotate-180' : ''}`} />
             </button>
-            
+
             {isRecipesOpen && (
-              <div 
+              <div
                 className="absolute top-full left-0 w-64 bg-white border border-gray-100 shadow-xl rounded-lg py-3 mt-1 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
                 onMouseLeave={() => setIsRecipesOpen(false)}
               >
@@ -140,7 +140,7 @@ export default function Header() {
                   Voir toutes les recettes
                 </Link>
                 <div className="max-h-64 overflow-y-auto">
-                  {categories.length > 0 ? categories.map((category) => (
+                  {categories.filter(c => c.type === 'recipe').length > 0 ? categories.filter(c => c.type === 'recipe').map((category) => (
                     <Link
                       key={category.id}
                       to={`/recipes?category=${category.id}`}
@@ -168,7 +168,7 @@ export default function Header() {
         <div className="flex items-center gap-2">
           {/* Mobile Search Icon (visible on tablets/mobile) */}
           <form onSubmit={handleSearch} className="md:hidden lg:hidden flex relative group mx-2">
-             <input
+            <input
               type="text"
               placeholder="Chercher..."
               className="bg-gray-100 border-none rounded-lg py-1.5 pl-8 pr-2 text-xs w-24 focus:w-40 focus:ring-2 focus:ring-indigo-500 transition-all"
@@ -190,15 +190,36 @@ export default function Header() {
                     <p className="text-[8px] text-gray-500 mt-1 uppercase font-semibold">{user?.is_admin ? 'Admin' : 'Client'}</p>
                   </div>
                 </button>
+
+                {/* Profile Dropdown */}
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-100 shadow-xl rounded-xl py-2 hidden group-hover:block animate-in fade-in zoom-in-95 duration-200 z-[60]">
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <UserIcon size={16} />
+                    Mon Profil
+                  </Link>
+                  {user?.is_admin && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-indigo-600 hover:bg-indigo-50 transition-colors"
+                    >
+                      <LayoutDashboard size={16} />
+                      Dashboard Admin
+                    </Link>
+                  )}
+                  <div className="h-px bg-gray-50 my-1 mx-2"></div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors text-left"
+                  >
+                    <LogOut size={16} />
+                    Déconnexion
+                  </button>
+                </div>
               </div>
-              
-              <button
-                onClick={handleLogout}
-                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
-                title="Déconnexion"
-              >
-                <LogOut size={18} />
-              </button>
+
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-2">
@@ -248,7 +269,7 @@ export default function Header() {
           >
             Accueil
           </Link>
-          
+
           <div className="space-y-3">
             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Nos Produits</p>
             <div className="grid grid-cols-1 gap-1 pl-2 border-l-2 border-gray-100">
@@ -259,7 +280,7 @@ export default function Header() {
               >
                 Tous les produits
               </Link>
-              {categories.map((cat) => (
+              {categories.filter(c => c.type === 'product').map((cat) => (
                 <Link
                   key={cat.id}
                   to={`/products?category=${cat.id}`}
@@ -282,14 +303,14 @@ export default function Header() {
               >
                 Toutes les recettes
               </Link>
-              {recipes.slice(0, 5).map((recipe) => (
+              {categories.filter(c => c.type === 'recipe').map((cat) => (
                 <Link
-                  key={recipe.id}
-                  to="/recipes"
+                  key={cat.id}
+                  to={`/recipes?category=${cat.id}`}
                   className="block py-2 text-sm text-gray-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {recipe.title || recipe.name}
+                  {cat.name}
                 </Link>
               ))}
             </div>
@@ -315,16 +336,36 @@ export default function Header() {
                     <p className="text-xs text-gray-500">{user?.email}</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-white border border-red-100 text-sm font-bold text-red-600 shadow-sm transition-all"
-                >
-                  <LogOut size={18} />
-                  Déconnexion
-                </button>
+                <div className="grid grid-cols-1 gap-2">
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-white border border-gray-100 text-sm font-bold text-gray-700 shadow-sm transition-all"
+                  >
+                    <UserIcon size={18} />
+                    Mon Profil
+                  </Link>
+                  {user?.is_admin && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-indigo-600 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all"
+                    >
+                      <LayoutDashboard size={18} />
+                      Dashboard Admin
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-white border border-red-100 text-sm font-bold text-red-600 shadow-sm transition-all"
+                  >
+                    <LogOut size={18} />
+                    Déconnexion
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">

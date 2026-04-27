@@ -33,19 +33,19 @@ const Recipes = () => {
   };
 
   const filteredRecipes = recipes.filter(recipe => {
-    const matchesCategory = categoryId 
-      ? (recipe.product?.category_id === parseInt(categoryId))
+    const matchesCategory = categoryId
+      ? (recipe.category_id === parseInt(categoryId) || recipe.category?.id === parseInt(categoryId))
       : true;
-    
+
     const matchesSearch = searchQuery
-      ? (recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-         recipe.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      ? (recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        recipe.description.toLowerCase().includes(searchQuery.toLowerCase()))
       : true;
 
     return matchesCategory && matchesSearch;
   });
 
-  const currentCategory = categoryId 
+  const currentCategory = categoryId
     ? categories.find(c => c.id === parseInt(categoryId))
     : null;
 
@@ -81,8 +81,8 @@ const Recipes = () => {
             {currentCategory ? `Recettes : ${currentCategory.name}` : 'Secrets de Cuisine'}
           </h1>
           <p className="max-w-2xl mx-auto text-lg text-rose-100/80 mb-0">
-            {currentCategory 
-              ? `Découvrez l'art de cuisiner avec nos produits de la gamme ${currentCategory.name}.` 
+            {currentCategory
+              ? `Découvrez l'art de cuisiner avec nos produits de la gamme ${currentCategory.name}.`
               : 'Explorez nos recettes traditionnelles et modernes conçues pour tirer le meilleur parti de vos ustensiles TITANIC.'}
           </p>
         </div>
@@ -101,27 +101,25 @@ const Recipes = () => {
                 {filteredRecipes.length} RECETTES TROUVÉES
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => handleCategoryChange(null)}
-                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${
-                  !categoryId 
-                    ? 'bg-rose-600 text-white shadow-lg shadow-rose-200 -translate-y-0.5' 
-                    : 'bg-white text-gray-600 border border-gray-200 hover:border-rose-300 hover:bg-rose-50/30'
-                }`}
+                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${!categoryId
+                  ? 'bg-rose-600 text-white shadow-lg shadow-rose-200 -translate-y-0.5'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-rose-300 hover:bg-rose-50/30'
+                  }`}
               >
                 Toutes les recettes
               </button>
-              {categories.map((category) => (
+              {categories.filter(c => c.type === 'recipe').map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${
-                    categoryId === category.id.toString()
-                      ? 'bg-rose-600 text-white shadow-lg shadow-rose-200 -translate-y-0.5'
-                      : 'bg-white text-gray-600 border border-gray-200 hover:border-rose-300 hover:bg-rose-50/30'
-                  }`}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${categoryId === category.id.toString()
+                    ? 'bg-rose-600 text-white shadow-lg shadow-rose-200 -translate-y-0.5'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:border-rose-300 hover:bg-rose-50/30'
+                    }`}
                 >
                   {category.name}
                 </button>
@@ -159,7 +157,7 @@ const Recipes = () => {
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
+
                 <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                   {recipe.preparation_time && (
                     <span className="bg-white/95 backdrop-blur text-gray-900 text-[10px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xl">
@@ -172,7 +170,7 @@ const Recipes = () => {
                   </span>
                 </div>
               </div>
-              
+
               <div className="p-8 flex flex-col flex-grow">
                 <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-rose-600 transition-colors line-clamp-1">
                   {recipe.title}
@@ -180,13 +178,13 @@ const Recipes = () => {
                 <p className="text-gray-500 text-sm line-clamp-3 mb-8 leading-relaxed">
                   {recipe.description}
                 </p>
-                
+
                 <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
                   <div className="flex items-center gap-2 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
                     <BookOpen size={14} className="text-rose-400" />
                     <span>{recipe.steps?.length || 0} étapes</span>
                   </div>
-                  <Link 
+                  <Link
                     to={`/recipes/${recipe.id}`}
                     className="inline-flex items-center gap-2 text-rose-600 hover:text-rose-800 text-sm font-black transition-all group/btn"
                   >
@@ -198,7 +196,7 @@ const Recipes = () => {
             </div>
           ))}
         </div>
-        
+
         {filteredRecipes.length === 0 && (
           <div className="text-center py-32 bg-gray-50 rounded-[40px] border-4 border-dashed border-gray-100">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white shadow-xl text-gray-300 mb-6">
@@ -206,7 +204,7 @@ const Recipes = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Aucune recette trouvée</h2>
             <p className="text-gray-500 mb-8 max-w-sm mx-auto">Essayez de modifier vos filtres ou votre recherche pour découvrir d'autres saveurs.</p>
-            <button 
+            <button
               onClick={() => {
                 setSearchParams({});
               }}

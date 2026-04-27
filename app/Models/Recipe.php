@@ -15,11 +15,17 @@ class Recipe extends Model
     {
         return [
             'steps' => 'array',
+            'images' => 'array',
         ];
     }
 
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

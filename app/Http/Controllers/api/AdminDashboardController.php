@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Catalogue;
 use App\Models\Category;
 use App\Models\Message;
 use App\Models\Product;
@@ -21,6 +22,7 @@ class AdminDashboardController extends Controller
             'users_count' => User::count(),
             'messages_count' => Message::count(),
             'unread_messages_count' => Message::where('is_read', false)->count(),
+            'catalogues_count' => Catalogue::count(),
         ]);
     }
 }

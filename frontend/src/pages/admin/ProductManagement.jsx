@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, fetchCategories } from '../../store/slices/productSlice';
 import api from '../../api/axios';
-import { 
-  Package, 
-  Plus, 
-  Search, 
-  Edit2, 
-  Trash2, 
-  X, 
+import {
+  Package,
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
+  X,
   Check,
   Filter,
   Image as ImageIcon
@@ -25,7 +25,8 @@ const ProductManagement = () => {
     description: '',
     category_id: '',
     badge: '',
-    image: null
+    image: null,
+    images: [] // For multiple upload
   });
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const ProductManagement = () => {
 
   const handleSearch = (e) => setSearchQuery(e.target.value);
 
-  const filteredProducts = products.filter(p => 
+  const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.category?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -48,7 +49,8 @@ const ProductManagement = () => {
         description: product.description,
         category_id: product.category_id,
         badge: product.badge || '',
-        image: null
+        image: null,
+        images: []
       });
     } else {
       setCurrentProduct(null);
@@ -57,7 +59,8 @@ const ProductManagement = () => {
         description: '',
         category_id: categories[0]?.id || '',
         badge: '',
-        image: null
+        image: null,
+        images: []
       });
     }
     setIsModalOpen(true);
@@ -72,7 +75,12 @@ const ProductManagement = () => {
     data.append('description', formData.description);
     data.append('category_id', formData.category_id);
     data.append('badge', formData.badge);
-    if (formData.image) {
+
+    if (formData.images && formData.images.length > 0) {
+      Array.from(formData.images).forEach(file => {
+        data.append('images[]', file);
+      });
+    } else if (formData.image) {
       data.append('image', formData.image);
     }
 
@@ -113,7 +121,7 @@ const ProductManagement = () => {
           <h1 className="text-3xl font-black text-gray-900">Gestion des Produits</h1>
           <p className="text-gray-500 mt-1 font-medium">Gérez votre catalogue d'ustensiles de cuisine.</p>
         </div>
-        <button 
+        <button
           onClick={() => openModal()}
           className="inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-95"
         >
@@ -125,9 +133,9 @@ const ProductManagement = () => {
       <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-50 flex flex-col md:flex-row md:items-center gap-4">
           <div className="relative flex-grow">
-            <input 
-              type="text" 
-              placeholder="Rechercher un produit..." 
+            <input
+              type="text"
+              placeholder="Rechercher un produit..."
               className="w-full bg-gray-50 border-none rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
               value={searchTerm}
               onChange={handleSearch}
@@ -188,13 +196,13 @@ const ProductManagement = () => {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button 
+                      <button
                         onClick={() => openModal(product)}
                         className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                       >
                         <Edit2 size={18} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDelete(product.id)}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                       >
@@ -222,27 +230,27 @@ const ProductManagement = () => {
                 <X size={24} />
               </button>
             </header>
-            
+
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nom du produit</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
                   className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Catégorie</label>
-                <select 
+                <select
                   className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
                   value={formData.category_id}
-                  onChange={(e) => setFormData({...formData, category_id: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                 >
-                  {categories.map(c => (
+                  {categories.filter(c => c.type === 'product').map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
@@ -250,44 +258,45 @@ const ProductManagement = () => {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Description</label>
-                <textarea 
+                <textarea
                   rows="3"
                   className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
                   value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 ></textarea>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Badge (Optionnel)</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="Ex: Nouveauté"
                     className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
                     value={formData.badge}
-                    onChange={(e) => setFormData({...formData, badge: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Image</label>
-                  <input 
-                    type="file" 
+                  <input
+                    type="file"
+                    multiple
                     className="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all"
-                    onChange={(e) => setFormData({...formData, image: e.target.files[0]})}
+                    onChange={(e) => setFormData({ ...formData, images: e.target.files })}
                   />
                 </div>
               </div>
 
               <div className="pt-4 flex gap-3">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={closeModal}
                   className="flex-grow py-3 px-6 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition-all"
                 >
                   Annuler
                 </button>
-                <button 
+                <button
                   type="submit"
                   className="flex-grow py-3 px-6 rounded-xl font-bold bg-indigo-600 text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-95"
                 >

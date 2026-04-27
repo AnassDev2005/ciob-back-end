@@ -24,15 +24,24 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'features' => 'nullable|array',
             'specifications' => 'nullable|array',
-            'images' => 'nullable|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'usage' => 'nullable|string',
             'badge' => 'nullable|string|max:255',
             'category_id' => 'required|integer|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('images')) {
+            $uploadedImages = [];
+            foreach ($request->file('images') as $file) {
+                $uploadedImages[] = $this->storeUploadedFile($file)['url'];
+            }
+            $validated['images'] = $uploadedImages;
+            $validated['image'] = $uploadedImages[0];
+        } elseif ($request->hasFile('image')) {
             $validated['image'] = $this->storeImage($request);
+            $validated['images'] = [$validated['image']];
         }
 
         $product = Product::create($validated);
@@ -52,15 +61,24 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'features' => 'nullable|array',
             'specifications' => 'nullable|array',
-            'images' => 'nullable|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'usage' => 'nullable|string',
             'badge' => 'nullable|string|max:255',
             'category_id' => 'sometimes|integer|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('images')) {
+            $uploadedImages = [];
+            foreach ($request->file('images') as $file) {
+                $uploadedImages[] = $this->storeUploadedFile($file)['url'];
+            }
+            $validated['images'] = $uploadedImages;
+            $validated['image'] = $uploadedImages[0];
+        } elseif ($request->hasFile('image')) {
             $validated['image'] = $this->storeImage($request);
+            $validated['images'] = [$validated['image']];
         }
 
         $product->update($validated);

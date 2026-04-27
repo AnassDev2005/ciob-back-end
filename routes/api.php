@@ -23,6 +23,7 @@ Route::post('/contact', [ContactController::class, 'store'])->middleware('thrott
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
+    Route::put('/me', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::post('/upload', [UploadController::class, 'upload']);
@@ -31,11 +32,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Admin-only routes
     Route::middleware('is_admin')->prefix('admin')->group(function () {
         Route::get('/stats', [AdminDashboardController::class, 'stats']);
-        
+
         Route::apiResource('users', UserController::class);
         Route::apiResource('messages', MessageController::class)->except(['store']);
         Route::apiResource('catalogues', CatalogueController::class);
-        
+
         // CRUD for products, categories, recipes for admin
         Route::apiResource('products', ProductController::class)->except(['index', 'show']);
         Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);

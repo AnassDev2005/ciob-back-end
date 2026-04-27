@@ -36,7 +36,7 @@ class AuthController extends Controller
 
     public function login(Request $request): JsonResponse
     {
-        $key = 'login:'.$request->ip();
+        $key = 'login:' . $request->ip();
         if (RateLimiter::tooManyAttempts($key, 5)) {
             return response()->json([
                 'message' => 'Too many login attempts. Please try again later.',
@@ -51,7 +51,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $validated['email'])->first();
 
-        if (! $user || ! Hash::check($validated['password'], $user->password)) {
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
             RateLimiter::hit($key, 120);
 
             return response()->json([
@@ -78,5 +78,32 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return response()->json($request->user());
+    }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => [
+                'nullable',
+                'string',
+                'min:8',
+                'regex:/[a-zA-Z]/',
+                'regex:/[0-9]/',
+            ],
+        ]);
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return response()->json($user);
     }
 }
