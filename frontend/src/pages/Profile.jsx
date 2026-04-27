@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../store/slices/authSlice';
 import api from '../api/axios';
 import { User, Mail, Shield, CheckCircle, AlertCircle, Save, Key } from 'lucide-react';
 
 export default function Profile() {
+    const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const [formData, setFormData] = useState({
         name: user?.name || '',
@@ -14,6 +15,16 @@ export default function Profile() {
     });
     const [status, setStatus] = useState({ type: '', message: '' });
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                name: user.name || '',
+                email: user.email || '',
+            }));
+        }
+    }, [user]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,12 +48,22 @@ export default function Profile() {
             const response = await api.put('/me', updateData);
             dispatch(updateUser(response.data));
             setStatus({ type: 'success', message: 'Profil mis à jour avec succès !' });
-            setFormData({ ...formData, password: '', confirmPassword: '' });
+            setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }));
         } catch (error) {
-            setStatus({
-                type: 'error',
-                message: error.response?.data?.message || 'Une erreur est survenue lors de la mise à jour.'
-            });
+            console.error('Profile update error:', error);
+            let errorMsg = 'Une erreur est survenue lors de la mise à jour.';
+            if (error.response) {
+                if (error.response.data?.errors) {
+                    errorMsg = Object.values(error.response.data.errors).flat().join(' ');
+                } else if (error.response.data?.message) {
+                    errorMsg = error.response.data.message;
+                } else {
+                    errorMsg = `Erreur ${error.response.status} : ${error.response.statusText}`;
+                }
+            } else if (error.request) {
+                errorMsg = 'Aucune réponse du serveur. Vérifiez votre connexion.';
+            }
+            setStatus({ type: 'error', message: errorMsg });
         } finally {
             setLoading(false);
         }

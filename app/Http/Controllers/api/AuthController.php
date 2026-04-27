@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
@@ -91,19 +92,15 @@ class AuthController extends Controller
                 'nullable',
                 'string',
                 'min:8',
-                'regex:/[a-zA-Z]/',
-                'regex:/[0-9]/',
             ],
         ]);
 
-        if (!empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
+        if (empty($validated['password'])) {
             unset($validated['password']);
         }
 
         $user->update($validated);
 
-        return response()->json($user);
+        return response()->json($user->fresh());
     }
 }
