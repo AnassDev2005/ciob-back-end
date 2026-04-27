@@ -1,37 +1,78 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../store/slices/authSlice";
-import { Menu, X, LogIn, LayoutDashboard, LogOut, User as UserIcon, Package, ChevronDown, BookOpen } from "lucide-react";
+import { Menu, X, LogIn, LayoutDashboard, LogOut, User as UserIcon, Package, ChevronDown, BookOpen, Search } from "lucide-react";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [isRecipesOpen, setIsRecipesOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
   const { user, token } = useSelector((state) => state.auth);
   const { categories } = useSelector((state) => state.products);
   const { recipes } = useSelector((state) => state.recipes);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("search") || "");
+  }, [searchParams]);
 
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams(searchParams);
+    if (searchQuery) {
+      params.set("search", searchQuery);
+    } else {
+      params.delete("search");
+    }
+
+    // Determine where to go based on current path
+    if (location.pathname === "/recipes") {
+      navigate(`/recipes?${params.toString()}`);
+    } else {
+      // Default to products for search
+      navigate(`/products?${params.toString()}`);
+    }
+    
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200">
       <div className="mx-auto max-w-7xl flex items-center justify-between px-4 py-3 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <Package className="h-8 w-8 text-indigo-600" />
-          <span className="text-xl font-bold text-gray-900 uppercase tracking-tight">Ciob Store</span>
-        </Link>
+        <div className="flex items-center gap-8">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <Package className="h-8 w-8 text-indigo-600" />
+            <span className="text-xl font-bold text-gray-900 uppercase tracking-tight hidden sm:block">Ciob Store</span>
+          </Link>
+
+          {/* Desktop Search */}
+          <form onSubmit={handleSearch} className="hidden lg:flex relative w-64 xl:w-80 group">
+            <input
+              type="text"
+              placeholder="Rechercher un produit..."
+              className="w-full bg-gray-100 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all group-hover:bg-gray-200"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-focus-within:text-indigo-600" />
+          </form>
+        </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-2">
+        <nav className="hidden md:flex items-center gap-1">
           <Link
             to="/"
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
+            className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
           >
             Accueil
           </Link>
@@ -39,7 +80,7 @@ export default function Header() {
           {/* Products Dropdown */}
           <div className="relative group">
             <button
-              className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
+              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
               onMouseEnter={() => { setIsProductsOpen(true); setIsRecipesOpen(false); }}
             >
               Nos produits
@@ -79,7 +120,7 @@ export default function Header() {
           {/* Recipes Dropdown */}
           <div className="relative group">
             <button
-              className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
+              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
               onMouseEnter={() => { setIsRecipesOpen(true); setIsProductsOpen(false); }}
             >
               Recettes
@@ -118,46 +159,58 @@ export default function Header() {
 
           <Link
             to="/products"
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
+            className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
           >
             Contact
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Mobile Search Icon (visible on tablets/mobile) */}
+          <form onSubmit={handleSearch} className="md:hidden lg:hidden flex relative group mx-2">
+             <input
+              type="text"
+              placeholder="Chercher..."
+              className="bg-gray-100 border-none rounded-lg py-1.5 pl-8 pr-2 text-xs w-24 focus:w-40 focus:ring-2 focus:ring-indigo-500 transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
+          </form>
+
           {token ? (
-            <div className="flex items-center gap-2">
-              <div className="relative group mr-2">
+            <div className="flex items-center gap-1">
+              <div className="relative group mr-1">
                 <button className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-50 transition-colors">
-                  <div className="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 border border-indigo-200">
-                    <UserIcon size={18} />
+                  <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 border border-indigo-200 shadow-sm">
+                    <UserIcon size={16} />
                   </div>
-                  <div className="hidden lg:block text-left mr-2">
-                    <p className="text-xs font-bold text-gray-900 leading-none">{user?.name}</p>
-                    <p className="text-[10px] text-gray-500 mt-1 uppercase font-semibold">{user?.is_admin ? 'Administrateur' : 'Client'}</p>
+                  <div className="hidden xl:block text-left mr-1">
+                    <p className="text-[10px] font-bold text-gray-900 leading-none">{user?.name}</p>
+                    <p className="text-[8px] text-gray-500 mt-1 uppercase font-semibold">{user?.is_admin ? 'Admin' : 'Client'}</p>
                   </div>
                 </button>
               </div>
               
               <button
                 onClick={handleLogout}
-                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
+                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
                 title="Déconnexion"
               >
-                <LogOut size={20} />
+                <LogOut size={18} />
               </button>
             </div>
           ) : (
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2">
               <Link
                 to="/login"
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors"
+                className="px-3 py-2 text-xs font-bold text-gray-700 hover:text-indigo-600 transition-colors"
               >
                 Connexion
               </Link>
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700 shadow-sm transition-all active:scale-95"
+                className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700 shadow-sm transition-all active:scale-95"
               >
                 S'inscrire
               </Link>
@@ -176,6 +229,18 @@ export default function Header() {
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div className="md:hidden border-t border-gray-200 bg-white px-4 py-6 space-y-6 animate-in slide-in-from-right duration-300">
+          {/* Mobile Search in Menu */}
+          <form onSubmit={handleSearch} className="relative group">
+            <input
+              type="text"
+              placeholder="Rechercher un produit..."
+              className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
+          </form>
+
           <Link
             to="/"
             className="block text-lg font-semibold text-gray-900"
