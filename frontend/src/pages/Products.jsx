@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams, Link } from 'react-router-dom';
 import { fetchProducts } from '../store/slices/productSlice';
-import { Package, Tag, Info, Filter, X, ChevronRight } from 'lucide-react';
+import { Package, Tag, Filter, X, ChevronRight, Search, Sparkles } from 'lucide-react';
 
 const Products = () => {
   const dispatch = useDispatch();
@@ -50,157 +50,169 @@ const Products = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-64px)]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8 text-center text-red-600">
-        <p>Error: {error}</p>
+      <div className="flex justify-center items-center min-h-screen bg-white">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-indigo-50 rounded-full"></div>
+          <div className="absolute top-0 left-0 w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative bg-indigo-900 py-20 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-800"></div>
+    <div className="flex flex-col bg-[#FDFDFF] min-h-screen">
+      {/* Cinematic Hero */}
+      <section className="relative pt-32 pb-20 overflow-hidden bg-[#0F172A]">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px]"></div>
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px]"></div>
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
         </div>
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-bold uppercase tracking-widest mb-4 backdrop-blur-sm border border-indigo-400/20">
-            <Package size={14} />
-            Catalogue Professionnel
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/70 text-[10px] font-black uppercase tracking-[0.3em] mb-8 backdrop-blur-md">
+            <Package size={14} className="text-indigo-400" />
+            Catalogue Premium
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl mb-4">
-            {currentCategory ? currentCategory.name : 'Nos Collections'}
+          <h1 className="text-5xl sm:text-6xl font-black tracking-tight text-white mb-6">
+            {currentCategory ? (
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-indigo-100 italic">
+                {currentCategory.name}
+              </span>
+            ) : 'Nos Collections'}
           </h1>
-          <p className="max-w-2xl mx-auto text-lg text-indigo-100/80 mb-0">
-            {currentCategory
-              ? currentCategory.description
-              : 'Découvrez notre gamme complète d\'ustensiles de cuisine haute performance pour les professionnels et les passionnés.'}
+          <p className="max-w-2xl mx-auto text-lg text-gray-400 font-medium leading-relaxed">
+            {currentCategory?.description || 'Découvrez l\'excellence industrielle au service de votre cuisine. Des outils forgés pour la performance et la durabilité.'}
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <header className="mb-12">
-          {/* Categories Filter Bar */}
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center gap-2 text-sm font-bold text-gray-900 uppercase tracking-widest">
-                <Filter size={18} className="text-indigo-600" />
-                Filtrer par catégorie
-              </div>
-              <div className="text-xs font-bold text-gray-400">
-                {filteredProducts.length} PRODUITS TROUVÉS
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto width-full px-4 sm:px-6 lg:px-8 -mt-10 relative z-20 pb-32">
+        
+        {/* Glass Filter Bar */}
+        <div className="bg-white/80 backdrop-blur-2xl border border-white p-4 sm:p-6 rounded-[2.5rem] shadow-2xl shadow-indigo-100/50 mb-16">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={() => handleCategoryChange(null)}
-                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${!categoryId
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 -translate-y-0.5'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30'
+                className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${!categoryId
+                    ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200 scale-105'
+                    : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-transparent'
                   }`}
               >
-                Tous les produits
+                Tout voir
               </button>
               {categories.filter(c => c.type === 'product').map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all transform active:scale-95 ${categoryId === category.id.toString()
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 -translate-y-0.5'
-                      : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30'
+                  className={`px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${categoryId === category.id.toString()
+                      ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200 scale-105'
+                      : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-transparent'
                     }`}
                 >
                   {category.name}
                 </button>
               ))}
             </div>
-          </div>
 
-          {/* Search Query Display */}
-          {searchQuery && (
-            <div className="mt-8 flex items-center gap-2">
-              <span className="text-sm text-gray-500">Résultats pour : </span>
-              <span className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-full text-sm font-bold border border-indigo-100 group">
-                "{searchQuery}"
-                <button onClick={clearSearch} className="hover:text-red-500 transition-colors p-0.5">
-                  <X size={14} />
-                </button>
-              </span>
+            {/* Stats / Search Display */}
+            <div className="flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 pt-6 lg:pt-0 border-gray-100">
+               <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Résultats</span>
+                  <span className="text-xl font-black text-gray-900">{filteredProducts.length} <span className="text-sm font-bold text-gray-400">Items</span></span>
+               </div>
+               {searchQuery && (
+                  <button 
+                    onClick={clearSearch}
+                    className="flex items-center gap-2 bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-100 transition-colors"
+                  >
+                    Effacer: "{searchQuery}" <X size={14} />
+                  </button>
+               )}
             </div>
-          )}
-        </header>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
           {filteredProducts.map((product) => (
-            <div key={product.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 group flex flex-col h-full">
-              <div className="aspect-square bg-gray-50 relative overflow-hidden">
+            <Link 
+              key={product.id} 
+              to={`/products/${product.id}`}
+              className="group bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden hover:shadow-[0_32px_64px_-12px_rgba(79,70,229,0.12)] transition-all duration-500 flex flex-col h-full"
+            >
+              {/* Image Container */}
+              <div className="aspect-[4/5] bg-gray-50 relative overflow-hidden">
                 {product.image ? (
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-300">
-                    <Package size={64} />
+                  <div className="w-full h-full flex items-center justify-center text-gray-200 bg-gray-50/50">
+                    <Package size={80} strokeWidth={1} />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
+                
+                {/* Overlay details on hover */}
+                <div className="absolute inset-0 bg-indigo-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                   <div className="bg-white/95 backdrop-blur px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-indigo-600 shadow-2xl translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                      Explorer l'item
+                   </div>
+                </div>
+
                 {product.badge && (
-                  <span className="absolute top-4 left-4 bg-indigo-600 text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase shadow-lg tracking-wider">
-                    {product.badge}
-                  </span>
+                  <div className="absolute top-6 left-6">
+                    <span className="bg-white text-gray-900 text-[10px] font-black px-4 py-2 rounded-xl uppercase shadow-2xl tracking-[0.1em] border border-gray-100 flex items-center gap-2">
+                       <Sparkles size={12} className="text-indigo-600" />
+                       {product.badge}
+                    </span>
+                  </div>
                 )}
               </div>
 
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 mb-3 uppercase tracking-widest">
+              {/* Info Container */}
+              <div className="p-8 flex flex-col flex-grow">
+                <div className="flex items-center gap-2 text-[10px] font-black text-indigo-500 mb-4 uppercase tracking-[0.2em]">
                   <Tag size={12} />
-                  {product.category?.name || 'Général'}
+                  {product.category?.name || 'Incontournable'}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2 truncate group-hover:text-indigo-600 transition-colors">{product.name}</h3>
-                <p className="text-gray-500 text-sm line-clamp-2 mb-6 leading-relaxed">
+                
+                <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-indigo-600 transition-colors">
+                  {product.name}
+                </h3>
+                
+                <p className="text-gray-500 text-sm font-medium line-clamp-2 mb-8 leading-relaxed italic">
                   {product.description}
                 </p>
 
-                <div className="mt-auto flex items-center justify-between pt-5 border-t border-gray-50">
-                  <Link
-                    to={`/products/${product.id}`}
-                    className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-gray-50 text-gray-900 text-sm font-bold hover:bg-indigo-600 hover:text-white transition-all transform active:scale-95 group/btn"
-                  >
-                    Voir les détails
-                    <ChevronRight size={16} className="transition-transform group-hover/btn:translate-x-1" />
-                  </Link>
+                <div className="mt-auto pt-6 border-t border-gray-50 flex items-center justify-between group/bot">
+                   <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Voir Détails</span>
+                   <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                      <ChevronRight size={20} />
+                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
+        {/* Empty State */}
         {filteredProducts.length === 0 && (
-          <div className="text-center py-32 bg-gray-50 rounded-[40px] border-4 border-dashed border-gray-100">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white shadow-xl text-gray-300 mb-6">
-              <Package size={40} />
+          <div className="text-center py-40">
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-[2.5rem] bg-indigo-50 text-indigo-200 mb-8 border border-white shadow-xl shadow-indigo-100/20">
+              <Search size={48} />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Aucun produit trouvé</h2>
-            <p className="text-gray-500 mb-8 max-w-sm mx-auto">Nous n'avons trouvé aucun résultat correspondant à vos critères de recherche.</p>
+            <h2 className="text-3xl font-black text-gray-900 mb-4">Aventure Inconnue</h2>
+            <p className="text-gray-500 font-medium mb-12 max-w-sm mx-auto">Aucun résultat pour cette recherche. Explorez d'autres catégories pour trouver votre bonheur.</p>
             <button
-              onClick={() => {
-                setSearchParams({});
-              }}
-              className="px-8 py-3 rounded-xl bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-95"
+              onClick={() => setSearchParams({})}
+              className="px-10 py-4 rounded-[1.5rem] bg-indigo-600 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"
             >
-              Réinitialiser tous les filtres
+              Réinitialiser les filtres
             </button>
           </div>
         )}

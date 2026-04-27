@@ -2,17 +2,15 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../store/slices/authSlice";
-import { Menu, X, LogIn, LayoutDashboard, LogOut, User as UserIcon, Package, ChevronDown, BookOpen, Search } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut, User as UserIcon, Package, ChevronDown, BookOpen, Search, Star, Hexagon } from "lucide-react";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProductsOpen, setIsProductsOpen] = useState(false);
-  const [isRecipesOpen, setIsRecipesOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchParams] = useSearchParams();
   const { user, token } = useSelector((state) => state.auth);
   const { categories } = useSelector((state) => state.products);
-  const { recipes } = useSelector((state) => state.recipes);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,6 +18,11 @@ export default function Header() {
   useEffect(() => {
     setSearchQuery(searchParams.get("search") || "");
   }, [searchParams]);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setActiveDropdown(null);
+  }, [location]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -34,360 +37,237 @@ export default function Header() {
     } else {
       params.delete("search");
     }
-
-    // Determine where to go based on current path
-    if (location.pathname === "/recipes") {
-      navigate(`/recipes?${params.toString()}`);
-    } else {
-      // Default to products for search
-      navigate(`/products?${params.toString()}`);
-    }
-
-    setIsMenuOpen(false);
+    const path = location.pathname === "/recipes" ? "/recipes" : "/products";
+    navigate(`${path}?${params.toString()}`);
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200">
-      <div className="mx-auto max-w-7xl flex items-center justify-between px-4 py-3 lg:px-8">
-        <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <Package className="h-8 w-8 text-indigo-600" />
-            <span className="text-xl font-bold text-gray-900 uppercase tracking-tight hidden sm:block">Ciob Store</span>
-          </Link>
-
-          {/* Desktop Search */}
-          <form onSubmit={handleSearch} className="hidden lg:flex relative w-64 xl:w-80 group">
-            <input
-              type="text"
-              placeholder="Rechercher un produit..."
-              className="w-full bg-gray-100 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all group-hover:bg-gray-200"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 group-focus-within:text-indigo-600" />
-          </form>
-        </div>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
-          <Link
-            to="/"
-            className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
-          >
-            Accueil
-          </Link>
-
-          {/* Products Dropdown */}
-          <div className="relative group">
-            <button
-              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
-              onMouseEnter={() => { setIsProductsOpen(true); setIsRecipesOpen(false); }}
-            >
-              Nos produits
-              <ChevronDown size={14} className={`transition-transform duration-200 ${isProductsOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isProductsOpen && (
-              <div
-                className="absolute top-full left-0 w-64 bg-white border border-gray-100 shadow-xl rounded-lg py-3 mt-1 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
-                onMouseLeave={() => setIsProductsOpen(false)}
-              >
-                <Link
-                  to="/products"
-                  className="block px-4 py-3 text-sm font-semibold text-indigo-600 bg-indigo-50/50 hover:bg-indigo-50 border-b border-gray-50 mb-1"
-                  onClick={() => setIsProductsOpen(false)}
-                >
-                  Découvrir tous nos produits
-                </Link>
-                <div className="max-h-64 overflow-y-auto">
-                  {categories.filter(c => c.type === 'product').length > 0 ? categories.filter(c => c.type === 'product').map((category) => (
-                    <Link
-                      key={category.id}
-                      to={`/products?category=${category.id}`}
-                      className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
-                      onClick={() => setIsProductsOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
-                  )) : (
-                    <p className="px-4 py-2 text-xs text-gray-400">Aucune catégorie</p>
-                  )}
-                </div>
+    <header className="sticky top-0 z-[100] w-full px-4 py-4 pointer-events-none">
+      <div className="mx-auto max-w-7xl h-16 pointer-events-auto">
+        <div className="h-full bg-white/70 backdrop-blur-2xl border border-white/50 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex items-center justify-between px-6 lg:px-10 overflow-visible relative">
+          
+          {/* Brand Logo */}
+          <div className="flex items-center gap-12">
+            <Link to="/" className="flex items-center gap-3 shrink-0 group">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200 group-hover:rotate-12 transition-transform duration-500">
+                <Hexagon fill="currentColor" size={24} />
               </div>
-            )}
-          </div>
+              <span className="text-xl font-black text-gray-900 uppercase tracking-tighter hidden sm:block">Titanic</span>
+            </Link>
 
-          {/* Recipes Dropdown */}
-          <div className="relative group">
-            <button
-              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
-              onMouseEnter={() => { setIsRecipesOpen(true); setIsProductsOpen(false); }}
-            >
-              Recettes
-              <ChevronDown size={14} className={`transition-transform duration-200 ${isRecipesOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isRecipesOpen && (
-              <div
-                className="absolute top-full left-0 w-64 bg-white border border-gray-100 shadow-xl rounded-lg py-3 mt-1 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
-                onMouseLeave={() => setIsRecipesOpen(false)}
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1">
+              <Link to="/" className="px-5 py-2 text-xs font-black uppercase tracking-widest text-gray-600 hover:text-indigo-600 transition-all">Accueil</Link>
+              
+              {/* Products Tiered Menu */}
+              <div 
+                className="relative"
+                onMouseEnter={() => setActiveDropdown('products')}
+                onMouseLeave={() => setActiveDropdown(null)}
               >
-                <Link
-                  to="/recipes"
-                  className="block px-4 py-3 text-sm font-semibold text-rose-600 bg-rose-50/50 hover:bg-rose-50 border-b border-gray-50 mb-1"
-                  onClick={() => setIsRecipesOpen(false)}
-                >
-                  Voir toutes les recettes
-                </Link>
-                <div className="max-h-64 overflow-y-auto">
-                  {categories.filter(c => c.type === 'recipe').length > 0 ? categories.filter(c => c.type === 'recipe').map((category) => (
-                    <Link
-                      key={category.id}
-                      to={`/recipes?category=${category.id}`}
-                      className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-rose-600 transition-colors"
-                      onClick={() => setIsRecipesOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
-                  )) : (
-                    <p className="px-4 py-2 text-xs text-gray-400">Aucune catégorie</p>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Link
-            to="/contact"
-            className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
-          >
-            Contact
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-2">
-          {/* Mobile Search Icon (visible on tablets/mobile) */}
-          <form onSubmit={handleSearch} className="md:hidden lg:hidden flex relative group mx-2">
-            <input
-              type="text"
-              placeholder="Chercher..."
-              className="bg-gray-100 border-none rounded-lg py-1.5 pl-8 pr-2 text-xs w-24 focus:w-40 focus:ring-2 focus:ring-indigo-500 transition-all"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
-          </form>
-
-          {token ? (
-            <div className="flex items-center gap-1">
-              <div className="relative group mr-1">
-                <button className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-50 transition-colors">
-                  <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 border border-indigo-200 shadow-sm">
-                    <UserIcon size={16} />
-                  </div>
-                  <div className="hidden xl:block text-left mr-1">
-                    <p className="text-[10px] font-bold text-gray-900 leading-none">{user?.name}</p>
-                    <p className="text-[8px] text-gray-500 mt-1 uppercase font-semibold">{user?.is_admin ? 'Admin' : 'Client'}</p>
-                  </div>
+                <button className="flex items-center gap-1.5 px-5 py-2 text-xs font-black uppercase tracking-widest text-gray-600 hover:text-indigo-600 transition-all">
+                  Collections
+                  <ChevronDown size={14} className={`transition-transform ${activeDropdown === 'products' ? 'rotate-180 text-indigo-600' : ''}`} />
                 </button>
-
-                {/* Profile Dropdown */}
-                <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-100 shadow-xl rounded-xl py-2 hidden group-hover:block animate-in fade-in zoom-in-95 duration-200 z-[60]">
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <UserIcon size={16} />
-                    Mon Profil
-                  </Link>
-                  {user?.is_admin && (
-                    <Link
-                      to="/admin"
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-indigo-600 hover:bg-indigo-50 transition-colors"
-                    >
-                      <LayoutDashboard size={16} />
-                      Dashboard Admin
-                    </Link>
-                  )}
-                  <div className="h-px bg-gray-50 my-1 mx-2"></div>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors text-left"
-                  >
-                    <LogOut size={16} />
-                    Déconnexion
-                  </button>
-                </div>
+                {activeDropdown === 'products' && (
+                  <div className="absolute top-full left-0 w-80 bg-white/95 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-[2rem] p-6 pt-8 animate-in fade-in slide-in-from-top-4 duration-300">
+                     <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500 mb-6 px-4">Fabrication Industrielle</span>
+                     <Link to="/products" className="flex items-center justify-between px-4 py-4 rounded-2xl bg-indigo-50 text-indigo-600 font-bold mb-4 hover:bg-indigo-100 transition-colors">
+                        Tout le Catalogue <ArrowRight size={16} />
+                     </Link>
+                     <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto custom-scrollbar">
+                        {categories.filter(c => c.type === 'product').map(cat => (
+                           <Link key={cat.id} to={`/products?category=${cat.id}`} className="px-4 py-3 text-sm font-bold text-gray-700 rounded-xl hover:bg-gray-50 hover:text-indigo-600 transition-all flex items-center gap-3 capitalize group/item">
+                              <div className="w-1.5 h-1.5 rounded-full bg-gray-200 group-hover/item:bg-indigo-500 transition-colors" />
+                              {cat.name}
+                           </Link>
+                        ))}
+                     </div>
+                  </div>
+                )}
               </div>
 
-            </div>
-          ) : (
-            <div className="hidden md:flex items-center gap-2">
-              <Link
-                to="/login"
-                className="px-3 py-2 text-xs font-bold text-gray-700 hover:text-indigo-600 transition-colors"
+              {/* Recipes Tiered Menu */}
+              <div 
+                className="relative"
+                onMouseEnter={() => setActiveDropdown('recipes')}
+                onMouseLeave={() => setActiveDropdown(null)}
               >
-                Connexion
-              </Link>
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700 shadow-sm transition-all active:scale-95"
-              >
-                S'inscrire
-              </Link>
-            </div>
-          )}
+                <button className="flex items-center gap-1.5 px-5 py-2 text-xs font-black uppercase tracking-widest text-gray-600 hover:text-rose-600 transition-all">
+                  L'Atelier
+                  <ChevronDown size={14} className={`transition-transform ${activeDropdown === 'recipes' ? 'rotate-180 text-rose-600' : ''}`} />
+                </button>
+                {activeDropdown === 'recipes' && (
+                  <div className="absolute top-full left-0 w-80 bg-white/95 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-[2rem] p-6 pt-8 animate-in fade-in slide-in-from-top-4 duration-300">
+                     <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-rose-500 mb-6 px-4">Recettes & Secrets</span>
+                     <Link to="/recipes" className="flex items-center justify-between px-4 py-4 rounded-2xl bg-rose-50 text-rose-600 font-bold mb-4 hover:bg-rose-100 transition-colors">
+                        Voir les Créations <BookOpen size={16} />
+                     </Link>
+                     <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto custom-scrollbar">
+                        {categories.filter(c => c.type === 'recipe').map(cat => (
+                           <Link key={cat.id} to={`/recipes?category=${cat.id}`} className="px-4 py-3 text-sm font-bold text-gray-700 rounded-xl hover:bg-gray-50 hover:text-rose-600 transition-all flex items-center gap-3 capitalize group/item">
+                              <div className="w-1.5 h-1.5 rounded-full bg-gray-200 group-hover/item:bg-rose-500 transition-colors" />
+                              {cat.name}
+                           </Link>
+                        ))}
+                     </div>
+                  </div>
+                )}
+              </div>
 
-          <button
-            className="md:hidden p-2 text-gray-700 hover:bg-gray-50 rounded-md"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+              <Link to="/contact" className="px-5 py-2 text-xs font-black uppercase tracking-widest text-gray-600 hover:text-indigo-600 transition-all">Contact</Link>
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-3">
+             {/* Smart Search */}
+             <form onSubmit={handleSearch} className="hidden lg:flex items-center relative group">
+                <input 
+                  type="text"
+                  placeholder="Rechercher..."
+                  className="bg-gray-50 border-2 border-transparent w-40 focus:w-80 rounded-2xl py-2 pl-10 pr-4 text-sm font-bold text-gray-700 focus:bg-white focus:border-indigo-500/20 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Search size={16} className="absolute left-3.5 text-gray-400 group-focus-within:text-indigo-600" />
+             </form>
+
+             <div className="h-6 w-px bg-gray-100 mx-2 hidden md:block"></div>
+
+             {token ? (
+                <div className="relative group">
+                   <button className="flex items-center gap-3 p-1.5 rounded-2xl hover:bg-gray-50 transition-all">
+                      <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100">
+                         <UserIcon size={18} />
+                      </div>
+                      <div className="hidden xl:block text-left pr-2">
+                         <p className="text-[10px] font-black text-gray-900 leading-none uppercase tracking-tighter">{user?.name?.split(' ')[0]}</p>
+                         <p className="text-[9px] text-gray-400 mt-1 font-bold uppercase tracking-widest leading-none">{user?.is_admin ? 'Admin' : 'VIP'}</p>
+                      </div>
+                   </button>
+                   
+                   {/* Profile Dropdown */}
+                   <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-100 shadow-2xl rounded-2xl py-3 hidden group-hover:block animate-in fade-in zoom-in-95 duration-200 z-[110]">
+                      <Link to="/profile" className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
+                        <UserIcon size={16} /> Mon Compte
+                      </Link>
+                      {user?.is_admin && (
+                         <Link to="/admin" className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-indigo-600 hover:bg-indigo-50 transition-colors">
+                            <LayoutDashboard size={16} /> Admin Panel
+                         </Link>
+                      )}
+                      <div className="h-px bg-gray-50 my-2 mx-5"></div>
+                      <button onClick={handleLogout} className="flex items-center gap-3 w-full px-5 py-3 text-sm font-bold text-rose-600 hover:bg-rose-50 transition-colors text-left uppercase tracking-widest text-[10px]">
+                        <LogOut size={16} /> Déconnexion
+                      </button>
+                   </div>
+                </div>
+             ) : (
+                <div className="hidden md:flex items-center gap-2">
+                   <Link to="/login" className="px-5 py-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-indigo-600 transition-all">Connexion</Link>
+                   <Link to="/register" className="h-10 px-6 rounded-xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100 flex items-center hover:bg-indigo-500 transition-all active:scale-95">S'inscrire</Link>
+                </div>
+             )}
+
+             <button 
+                className="md:hidden w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+             >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+             </button>
+          </div>
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Glass Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white px-4 py-6 space-y-6 animate-in slide-in-from-right duration-300">
-          {/* Mobile Search in Menu */}
-          <form onSubmit={handleSearch} className="relative group">
-            <input
-              type="text"
-              placeholder="Rechercher un produit..."
-              className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
-          </form>
+        <div className="fixed inset-0 top-[88px] z-50 bg-white/95 backdrop-blur-2xl md:hidden overflow-y-auto animate-in slide-in-from-right duration-500 pointer-events-auto">
+           <div className="px-6 py-10 space-y-12 max-w-lg mx-auto">
+              {/* Search in Mobile */}
+              <form onSubmit={handleSearch} className="relative group">
+                <input 
+                  type="text"
+                  placeholder="Ex: Marmite inox..."
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4.5 pl-12 pr-6 text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
+              </form>
 
-          <Link
-            to="/"
-            className="block text-lg font-semibold text-gray-900"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Accueil
-          </Link>
+              {/* Main Links */}
+              <nav className="space-y-6">
+                 <Link to="/" className="flex items-center justify-between text-2xl font-black text-gray-900 group">
+                    Accueil <ChevronRight size={24} className="text-gray-200 group-hover:text-indigo-500" />
+                 </Link>
+                 
+                 <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">Collections</p>
+                    <div className="grid grid-cols-1 gap-4">
+                       <Link to="/products" className="text-lg font-bold text-indigo-600 flex items-center gap-3">
+                          <div className="w-2 h-2 rounded-full bg-indigo-500" /> Tout explorer
+                       </Link>
+                    </div>
+                 </div>
 
-          <div className="space-y-3">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Nos Produits</p>
-            <div className="grid grid-cols-1 gap-1 pl-2 border-l-2 border-gray-100">
-              <Link
-                to="/products"
-                className="block py-2 text-sm font-medium text-indigo-600"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Tous les produits
-              </Link>
-              {categories.filter(c => c.type === 'product').map((cat) => (
-                <Link
-                  key={cat.id}
-                  to={`/products?category=${cat.id}`}
-                  className="block py-2 text-sm text-gray-600"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
-          </div>
+                 <div className="space-y-4 pt-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">L'Atelier</p>
+                    <div className="grid grid-cols-1 gap-4">
+                       <Link to="/recipes" className="text-lg font-bold text-rose-600 flex items-center gap-3">
+                          <div className="w-2 h-2 rounded-full bg-rose-500" /> Recettes Chef
+                       </Link>
+                    </div>
+                 </div>
 
-          <div className="space-y-3">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Recettes</p>
-            <div className="grid grid-cols-1 gap-1 pl-2 border-l-2 border-gray-100">
-              <Link
-                to="/recipes"
-                className="block py-2 text-sm font-medium text-rose-600"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Toutes les recettes
-              </Link>
-              {categories.filter(c => c.type === 'recipe').map((cat) => (
-                <Link
-                  key={cat.id}
-                  to={`/recipes?category=${cat.id}`}
-                  className="block py-2 text-sm text-gray-600"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
-          </div>
+                 <Link to="/contact" className="flex items-center justify-between text-2xl font-black text-gray-900 group border-t border-gray-50 pt-8 mt-8">
+                    Contact <ChevronRight size={24} className="text-gray-200 group-hover:text-indigo-500" />
+                 </Link>
+              </nav>
 
-          <Link
-            to="/contact"
-            className="block text-lg font-semibold text-gray-900"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Contact
-          </Link>
-
-          <div className="pt-6 border-t border-gray-100">
-            {token ? (
-              <div className="space-y-4 bg-gray-50 p-4 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 border border-indigo-200 shadow-sm">
-                    <UserIcon size={24} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">{user?.name}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-2">
-                  <Link
-                    to="/profile"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-white border border-gray-100 text-sm font-bold text-gray-700 shadow-sm transition-all"
-                  >
-                    <UserIcon size={18} />
-                    Mon Profil
-                  </Link>
-                  {user?.is_admin && (
-                    <Link
-                      to="/admin"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-indigo-600 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all"
-                    >
-                      <LayoutDashboard size={18} />
-                      Dashboard Admin
-                    </Link>
-                  )}
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-white border border-red-100 text-sm font-bold text-red-600 shadow-sm transition-all"
-                  >
-                    <LogOut size={18} />
-                    Déconnexion
-                  </button>
-                </div>
+              {/* Account Section Mobile */}
+              <div className="pt-10 border-t border-gray-100">
+                 {token ? (
+                    <div className="bg-gray-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden">
+                       <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-[5rem]"></div>
+                       <div className="flex items-center gap-4 mb-8">
+                           <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
+                              <UserIcon size={24} />
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Bienvenue</p>
+                              <p className="text-xl font-bold">{user?.name}</p>
+                           </div>
+                       </div>
+                       <div className="grid grid-cols-1 gap-3">
+                          <Link to="/profile" className="w-full py-4 bg-white/10 hover:bg-white/20 text-center font-bold rounded-2xl transition-all">Profil</Link>
+                          {user?.is_admin && <Link to="/admin" className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-center font-bold rounded-2xl transition-all">Admin Dashboard</Link>}
+                          <button onClick={handleLogout} className="w-full py-4 text-rose-400 font-bold uppercase tracking-widest text-xs mt-4">Déconnexion</button>
+                       </div>
+                    </div>
+                 ) : (
+                    <div className="grid grid-cols-1 gap-4">
+                       <Link to="/login" className="w-full py-5 bg-gray-50 text-gray-900 font-black text-center text-sm uppercase tracking-widest rounded-[1.5rem]">Connexion</Link>
+                       <Link to="/register" className="w-full py-5 bg-indigo-600 text-white font-black text-center text-sm uppercase tracking-widest rounded-[1.5rem] shadow-2xl shadow-indigo-100">S'inscrire</Link>
+                    </div>
+                 )}
               </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-3">
-                <Link
-                  to="/login"
-                  className="flex items-center justify-center rounded-lg border border-gray-200 px-4 py-3 text-sm font-bold text-gray-700 bg-white"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Connexion
-                </Link>
-                <Link
-                  to="/register"
-                  className="flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-bold text-white shadow-sm"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  S'inscrire
-                </Link>
-              </div>
-            )}
-          </div>
+           </div>
         </div>
       )}
     </header>
   );
 }
+
+// Sub-component for arrow icon in the menu
+const ArrowRight = ({ size = 20, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+    <polyline points="12 5 19 12 12 19"></polyline>
+  </svg>
+);
+
+const ChevronRight = ({ size = 20, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+);
