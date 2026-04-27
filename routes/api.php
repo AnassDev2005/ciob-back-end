@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\api\AdminDashboardController;
 use App\Http\Controllers\api\AuthController;
+use App\Http\Controllers\api\CatalogueController;
 use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\ContactController;
+use App\Http\Controllers\api\MessageController;
 use App\Http\Controllers\api\ProductController;
 use App\Http\Controllers\api\RecipeController;
 use App\Http\Controllers\api\UploadController;
@@ -12,10 +15,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return response()->json(['message' => 'Ciob API v1']);
-});
-
-Route::post('/test', function (Request $request) {
-    return response()->json(['status' => 'ok', 'data' => $request->all()]);
 });
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:registration');
@@ -29,36 +28,32 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/upload', [UploadController::class, 'upload']);
     Route::post('/upload-multiple', [UploadController::class, 'uploadMultiple']);
 
-    Route::middleware('is_admin')->group(function () {
+    // Admin-only routes
+    Route::middleware('is_admin')->prefix('admin')->group(function () {
+        Route::get('/stats', [AdminDashboardController::class, 'stats']);
+        
         Route::apiResource('users', UserController::class);
+        Route::apiResource('messages', MessageController::class)->except(['store']);
+        Route::apiResource('catalogues', CatalogueController::class);
+        
+        // CRUD for products, categories, recipes for admin
+        Route::apiResource('products', ProductController::class)->except(['index', 'show']);
+        Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
+        Route::apiResource('recipes', RecipeController::class)->except(['index', 'show']);
     });
 });
+
 // public Product routes
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
 
-// Admin routes for managing products
-Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
-    Route::apiResource('products', ProductController::class)
-        ->except(['index', 'show']);
-});
-
 // public route for category
-Route::apiResource('categories', CategoryController::class)
-    ->only(['index', 'show']);
-
-// Admin routes for managing categories
-Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
-    Route::apiResource('categories', CategoryController::class)
-        ->only(['store', 'update', 'destroy']);
-});
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{category}', [CategoryController::class, 'show']);
 
 // public route for recettes
-Route::apiResource('recipes', RecipeController::class)
-    ->only(['index', 'show']);
+Route::get('/recipes', [RecipeController::class, 'index']);
+Route::get('/recipes/{recipe}', [RecipeController::class, 'show']);
 
-// Admin routes for managing recettes
-Route::middleware(['auth:sanctum', 'is_admin'])->group(function () {
-    Route::apiResource('recipes', RecipeController::class)
-        ->only(['store', 'update', 'destroy']);
-});
+// public route for catalogue
+Route::get('/catalogues', [CatalogueController::class, 'index']);

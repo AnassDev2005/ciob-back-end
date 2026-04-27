@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -28,11 +29,10 @@ class ContactController extends Controller
             ], 422);
         }
 
-        // Log the message (can be extended to send emails or save to database)
-        Log::info('New Contact Form Submission:', $request->all());
+        // Save to database
+        $message = Message::create($request->all());
 
-        // In a real application, you might want to send an email here:
-        // Mail::to('admin@ciob-store.ma')->send(new ContactMail($request->all()));
+        Log::info('New Contact Form Submission Saved:', ['id' => $message->id]);
 
         return response()->json([
             'status' => 'success',

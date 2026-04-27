@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { fetchProducts } from '../store/slices/productSlice';
 import { Package, Tag, Info, Filter, X, ChevronRight } from 'lucide-react';
 
