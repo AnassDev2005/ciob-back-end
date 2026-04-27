@@ -13,6 +13,18 @@ export const fetchProducts = createAsyncThunk('products/fetchAll', async (_, { r
   }
 });
 
+export const fetchProductById = createAsyncThunk('products/fetchOne', async (id, { rejectWithValue }) => {
+  try {
+    const response = await api.get(`/products/${id}`);
+    return response.data;
+  } catch (error) {
+    if (!error.response) {
+      return rejectWithValue({ message: 'Network error or CORS issue' });
+    }
+    return rejectWithValue(error.response.data);
+  }
+});
+
 export const fetchCategories = createAsyncThunk('categories/fetchAll', async (_, { rejectWithValue }) => {
   try {
     const response = await api.get('/categories');
@@ -28,6 +40,7 @@ export const fetchCategories = createAsyncThunk('categories/fetchAll', async (_,
 const initialState = {
   products: [],
   categories: [],
+  currentProduct: null,
   loading: false,
   error: null,
 };
@@ -35,7 +48,11 @@ const initialState = {
 const productSlice = createSlice({
   name: 'products',
   initialState,
-  reducers: {},
+  reducers: {
+    clearCurrentProduct: (state) => {
+      state.currentProduct = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchProducts.pending, (state) => {
@@ -49,10 +66,23 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || 'Failed to fetch products';
       })
+      .addCase(fetchProductById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentProduct = action.payload;
+      })
+      .addCase(fetchProductById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || 'Failed to fetch product';
+      })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.categories = action.payload;
       });
   },
 });
 
+export const { clearCurrentProduct } = productSlice.actions;
 export default productSlice.reducer;

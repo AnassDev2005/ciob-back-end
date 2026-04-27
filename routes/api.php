@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\api\CategoryController;
+use App\Http\Controllers\api\ContactController;
 use App\Http\Controllers\api\ProductController;
 use App\Http\Controllers\api\RecipeController;
 use App\Http\Controllers\api\UploadController;
@@ -19,6 +20,7 @@ Route::post('/test', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:registration');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:api');
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);

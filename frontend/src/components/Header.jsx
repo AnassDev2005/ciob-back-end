@@ -158,7 +158,7 @@ export default function Header() {
           </div>
 
           <Link
-            to="/products"
+            to="/contact"
             className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors rounded-md hover:bg-gray-50"
           >
             Contact
@@ -296,7 +296,7 @@ export default function Header() {
           </div>
 
           <Link
-            to="/"
+            to="/contact"
             className="block text-lg font-semibold text-gray-900"
             onClick={() => setIsMenuOpen(false)}
           >
