@@ -131,6 +131,32 @@ const ProductDetail = () => {
               </p>
             </div>
 
+            {/* Technical Specs: Diameter & Characteristics */}
+            {(product.diameter || (product.characteristics && product.characteristics.length > 0)) && (
+              <div className="bg-gray-50/50 rounded-[2.5rem] border border-gray-100 p-8 sm:p-10 space-y-10">
+                {product.diameter && (
+                  <div className="flex items-center justify-between border-b border-gray-200 pb-8">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">Dimensions</span>
+                    <span className="text-2xl font-black text-gray-900">{product.diameter} <small className="text-gray-400">cm</small></span>
+                  </div>
+                )}
+
+                {product.characteristics && product.characteristics.length > 0 && (
+                  <div className="space-y-6">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">Points Forts</span>
+                    <div className="flex flex-wrap gap-3">
+                      {product.characteristics.map((char, i) => (
+                        <div key={i} className="px-5 py-3 rounded-2xl bg-white border border-gray-200 shadow-sm text-xs font-black uppercase tracking-widest text-indigo-600 flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                          {char}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Premium Feature Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="flex items-center gap-5 p-6 rounded-[2rem] bg-white border border-gray-100 shadow-sm group hover:shadow-xl transition-all duration-500">

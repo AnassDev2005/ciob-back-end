@@ -11,6 +11,7 @@ const emptyForm = {
     title: '',
     description: '',
     steps: [''],
+    ingredients: [''],
     preparation_time: '',
     cooking_time: '',
     product_id: '',
@@ -41,6 +42,7 @@ const RecipeManagement = () => {
                 title: recipe.title || '',
                 description: recipe.description || '',
                 steps: Array.isArray(recipe.steps) ? recipe.steps : (recipe.steps ? JSON.parse(recipe.steps) : ['']),
+                ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : (recipe.ingredients ? JSON.parse(recipe.ingredients) : ['']),
                 preparation_time: recipe.preparation_time || '',
                 cooking_time: recipe.cooking_time || '',
                 product_id: recipe.product_id || '',
@@ -74,6 +76,19 @@ const RecipeManagement = () => {
         setFormData({ ...formData, steps: steps.length ? steps : [''] });
     };
 
+    const updateIngredient = (index, value) => {
+        const ingredients = [...formData.ingredients];
+        ingredients[index] = value;
+        setFormData({ ...formData, ingredients });
+    };
+
+    const addIngredient = () => setFormData({ ...formData, ingredients: [...formData.ingredients, ''] });
+    const removeIngredient = (index) => {
+        const ingredients = [...formData.ingredients];
+        ingredients.splice(index, 1);
+        setFormData({ ...formData, ingredients: ingredients.length ? ingredients : [''] });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -81,6 +96,7 @@ const RecipeManagement = () => {
         data.append('title', formData.title);
         data.append('description', formData.description);
         formData.steps.forEach((step, i) => data.append(`steps[${i}]`, step));
+        formData.ingredients.forEach((ing, i) => data.append(`ingredients[${i}]`, ing));
         if (formData.preparation_time) data.append('preparation_time', formData.preparation_time);
         if (formData.cooking_time) data.append('cooking_time', formData.cooking_time);
         if (formData.product_id) data.append('product_id', formData.product_id);
@@ -298,6 +314,34 @@ const RecipeManagement = () => {
                                     <button type="button" onClick={addStep}
                                         className="text-xs font-black text-rose-600 hover:text-rose-700 flex items-center gap-1 mt-1 ml-8">
                                         <Plus size={14} /> Ajouter une étape
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Ingrédients *</label>
+                                <div className="space-y-2">
+                                    {formData.ingredients.map((ing, index) => (
+                                        <div key={index} className="flex gap-2 items-start">
+                                            <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 text-xs font-black flex items-center justify-center mt-3 shrink-0 shadow-sm">{index + 1}</span>
+                                            <input
+                                                type="text"
+                                                placeholder={`Ingrédient ${index + 1}...`}
+                                                className="flex-1 bg-gray-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                                                value={ing}
+                                                onChange={(e) => updateIngredient(index, e.target.value)}
+                                            />
+                                            {formData.ingredients.length > 1 && (
+                                                <button type="button" onClick={() => removeIngredient(index)}
+                                                    className="mt-2 p-2 text-gray-300 hover:text-red-500 rounded-lg transition-colors">
+                                                    <X size={16} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <button type="button" onClick={addIngredient}
+                                        className="text-xs font-black text-indigo-600 hover:text-indigo-700 flex items-center gap-1 mt-1 ml-8 uppercase tracking-widest">
+                                        <Plus size={14} /> Ajouter un ingrédient
                                     </button>
                                 </div>
                             </div>

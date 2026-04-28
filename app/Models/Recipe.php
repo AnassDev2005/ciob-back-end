@@ -15,6 +15,7 @@ class Recipe extends Model
     {
         return [
             'steps' => 'array',
+            'ingredients' => 'array',
             'images' => 'array',
         ];
     }

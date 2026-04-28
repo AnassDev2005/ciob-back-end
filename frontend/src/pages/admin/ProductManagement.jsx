@@ -25,6 +25,8 @@ const ProductManagement = () => {
     description: '',
     category_id: '',
     badge: '',
+    diameter: '',
+    characteristics: '',
     image: null,
     images: [] // For multiple upload
   });
@@ -49,6 +51,8 @@ const ProductManagement = () => {
         description: product.description,
         category_id: product.category_id,
         badge: product.badge || '',
+        diameter: product.diameter || '',
+        characteristics: product.characteristics ? product.characteristics.join(', ') : '',
         image: null,
         images: []
       });
@@ -59,6 +63,8 @@ const ProductManagement = () => {
         description: '',
         category_id: categories[0]?.id || '',
         badge: '',
+        diameter: '',
+        characteristics: '',
         image: null,
         images: []
       });
@@ -75,6 +81,14 @@ const ProductManagement = () => {
     data.append('description', formData.description);
     data.append('category_id', formData.category_id);
     data.append('badge', formData.badge);
+    data.append('diameter', formData.diameter);
+
+    if (formData.characteristics) {
+      const charArray = formData.characteristics.split(',').map(s => s.trim()).filter(s => s !== '');
+      charArray.forEach((char, index) => {
+        data.append(`characteristics[${index}]`, char);
+      });
+    }
 
     if (formData.images && formData.images.length > 0) {
       Array.from(formData.images).forEach(file => {
@@ -264,6 +278,29 @@ const ProductManagement = () => {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 ></textarea>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Diamètre (cm)</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 24"
+                    className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                    value={formData.diameter}
+                    onChange={(e) => setFormData({ ...formData, diameter: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Points Forts (Sép: ,)</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Inox 304, Fond Triple"
+                    className="w-full bg-gray-50 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                    value={formData.characteristics}
+                    onChange={(e) => setFormData({ ...formData, characteristics: e.target.value })}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

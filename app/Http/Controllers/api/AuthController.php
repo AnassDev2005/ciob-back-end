@@ -93,10 +93,19 @@ class AuthController extends Controller
                 'string',
                 'min:8',
             ],
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if (empty($validated['password'])) {
             unset($validated['password']);
+        }
+
+        if ($request->hasFile('image')) {
+            if ($user->image) {
+                // Remove logic if needed, or just let it stay for now
+            }
+            $path = $request->file('image')->store('profiles', 'public');
+            $validated['image'] = asset('storage/' . $path);
         }
 
         $user->update($validated);

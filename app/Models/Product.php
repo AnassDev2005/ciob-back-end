@@ -17,6 +17,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
+            'characteristics' => 'array',
             'features' => 'array',
             'specifications' => 'array',
             'images' => 'array',
