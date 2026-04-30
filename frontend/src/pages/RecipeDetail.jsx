@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRecipeById, clearCurrentRecipe } from '../store/slices/recipeSlice';
-import { Clock, Utensils, ArrowLeft, BookOpen, ChefHat, CheckCircle2, ChevronLeft, ChevronRight, Share2, Flame, Heart } from 'lucide-react';
+import { Clock, Utensils, ArrowLeft, BookOpen, ChefHat, CheckCircle2, ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 
 const RecipeDetail = () => {
   const { id } = useParams();
@@ -135,15 +135,6 @@ const RecipeDetail = () => {
                   ))}
                 </div>
               )}
-
-              <div className="flex items-center gap-4 ml-auto">
-                <button className="bg-white/5 backdrop-blur-md p-4 rounded-2xl text-white border border-white/10 hover:bg-rose-600 transition-all active:scale-95 group">
-                  <Heart size={20} className="group-hover:fill-current" />
-                </button>
-                <button className="bg-white/5 backdrop-blur-md p-4 rounded-2xl text-white border border-white/10 hover:bg-white/20 transition-all active:scale-95">
-                  <Share2 size={20} />
-                </button>
-              </div>
             </div>
           </div>
         </div>

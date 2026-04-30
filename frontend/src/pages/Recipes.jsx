@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams, Link } from 'react-router-dom';
 import { fetchRecipes } from '../store/slices/recipeSlice';
-import { BookOpen, Clock, Utensils, Filter, X, ChevronRight, Search, ChefHat, Heart } from 'lucide-react';
+import { BookOpen, Clock, Utensils, Filter, X, ChevronRight, Search, ChefHat } from 'lucide-react';
 
 const Recipes = () => {
   const dispatch = useDispatch();
@@ -161,21 +161,6 @@ const Recipes = () => {
                 )}
                 
                 {/* Floating Meta Data */}
-                <div className="absolute top-6 left-6 flex flex-col gap-2">
-                   <div className="bg-white/95 backdrop-blur px-4 py-2 rounded-xl flex items-center gap-2 shadow-2xl border border-white/50">
-                      <Clock size={14} className="text-rose-600" />
-                      <span className="text-[10px] font-black text-gray-900 uppercase">
-                        {recipe.preparation_time || 30} MIN
-                      </span>
-                   </div>
-                </div>
-
-                <div className="absolute top-6 right-6">
-                   <button className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-colors">
-                      <Heart size={18} />
-                   </button>
-                </div>
-
                 {/* Linear gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1A0B0E]/80 via-[#1A0B0E]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
