@@ -115,14 +115,6 @@ const ProductDetail = () => {
                 {product.name}
               </h1>
 
-              <div className="flex items-center gap-1 text-amber-400">
-                <Star size={16} fill="currentColor" />
-                <Star size={16} fill="currentColor" />
-                <Star size={16} fill="currentColor" />
-                <Star size={16} fill="currentColor" />
-                <Star size={16} fill="currentColor" />
-                <span className="ml-2 text-gray-400 font-bold text-xs uppercase tracking-widest">(Avis Vérifiés)</span>
-              </div>
             </div>
 
             <div className="prose prose-indigo max-w-none">

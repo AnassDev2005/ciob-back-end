@@ -35,7 +35,6 @@ const AdminLayout = () => {
     { name: 'Catégories', icon: Tags, path: '/admin/categories' },
     { name: 'Recettes', icon: Utensils, path: '/admin/recipes' },
     { name: 'Messages', icon: MessageSquare, path: '/admin/messages' },
-    { name: 'Catalogues', icon: BookOpen, path: '/admin/catalogues' },
     { name: 'Utilisateurs', icon: Users, path: '/admin/users' },
   ];
 

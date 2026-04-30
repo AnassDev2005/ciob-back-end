@@ -158,7 +158,7 @@ export default function Header() {
                               </div>
                               Mon Compte
                            </Link>
-                           {user?.is_admin && (
+                           {!!user?.is_admin && (
                               <Link to="/admin" className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-indigo-600 hover:bg-indigo-50 transition-colors">
                                  <LayoutDashboard size={16} /> Admin Panel
                               </Link>
@@ -251,7 +251,7 @@ export default function Header() {
                            </div>
                            <div className="grid grid-cols-1 gap-3">
                               <Link to="/profile" className="w-full py-4 bg-white/10 hover:bg-white/20 text-center font-bold rounded-2xl transition-all">Profil</Link>
-                              {user?.is_admin && <Link to="/admin" className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-center font-bold rounded-2xl transition-all">Admin Dashboard</Link>}
+                              {!!user?.is_admin && <Link to="/admin" className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-center font-bold rounded-2xl transition-all">Admin Dashboard</Link>}
                               <button onClick={handleLogout} className="w-full py-4 text-rose-400 font-bold uppercase tracking-widest text-xs mt-4">Déconnexion</button>
                            </div>
                         </div>

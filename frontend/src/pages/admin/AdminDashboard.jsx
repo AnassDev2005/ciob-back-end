@@ -52,7 +52,6 @@ const AdminDashboard = () => {
     { name: 'Recettes', value: stats?.recipes_count ?? '—', icon: Utensils, color: 'bg-rose-500', shadow: 'shadow-rose-200', link: '/admin/recipes' },
     { name: 'Messages', value: stats?.messages_count ?? '—', icon: MessageSquare, color: 'bg-amber-500', shadow: 'shadow-amber-200', link: '/admin/messages' },
     { name: 'Utilisateurs', value: stats?.users_count ?? '—', icon: Users, color: 'bg-indigo-500', shadow: 'shadow-indigo-200', link: '/admin/users' },
-    { name: 'Catalogues', value: stats?.catalogues_count ?? '—', icon: BookOpen, color: 'bg-teal-500', shadow: 'shadow-teal-200', link: '/admin/catalogues' },
   ];
 
   const chartData = [
@@ -61,7 +60,6 @@ const AdminDashboard = () => {
     { label: 'Recettes', value: stats?.recipes_count || 0, color: '#f43f5e' },
     { label: 'Utilisateurs', value: stats?.users_count || 0, color: '#6366f1' },
     { label: 'Messages', value: stats?.messages_count || 0, color: '#f59e0b' },
-    { label: 'Catalogues', value: stats?.catalogues_count || 0, color: '#14b8a6' },
   ];
 
   const quickActions = [
@@ -69,7 +67,6 @@ const AdminDashboard = () => {
     { label: 'Nouvelle Recette', icon: Utensils, link: '/admin/recipes', color: 'text-rose-600 bg-rose-50 hover:bg-rose-100' },
     { label: 'Gérer les Catégories', icon: Tags, link: '/admin/categories', color: 'text-purple-600 bg-purple-50 hover:bg-purple-100' },
     { label: 'Voir les Messages', icon: Mail, link: '/admin/messages', color: 'text-amber-600 bg-amber-50 hover:bg-amber-100' },
-    { label: 'Catalogues PDF', icon: BookOpen, link: '/admin/catalogues', color: 'text-teal-600 bg-teal-50 hover:bg-teal-100' },
     { label: 'Utilisateurs', icon: Users, link: '/admin/users', color: 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' },
   ];
 
